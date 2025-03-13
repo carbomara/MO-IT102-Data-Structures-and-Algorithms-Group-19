@@ -288,8 +288,8 @@ public class DSATerminalAssessment {
         // Stack for undo functionality
         Stack<Stock> undoStack = new Stack<>();
 
-        // Load initial data from the CSV file
-        loadInventoryFromCSV(inventoryBST, brandMap, "C:\\Users\\Administrator\\IdeaProjects\\MotorPH\\src\\datadsa.csv");
+        // Load initial data from the embedded CSV data using the InventoryData class
+        loadInventoryFromString(inventoryBST, brandMap);
 
         while (true) {
             System.out.println("\nMotorPH Inventory System");
@@ -561,8 +561,8 @@ public class DSATerminalAssessment {
         }
     }
 
-    // Load inventory from CSV file with AVL Tree and HashMap
-    public static void loadInventoryFromCSV(InventoryBST inventoryBST, HashMap<String, List<Stock>> brandMap, String filePath) {
+    // Load inventory from embedded CSV data
+    public static void loadInventoryFromString(InventoryBST inventoryBST, HashMap<String, List<Stock>> brandMap) {
         try (BufferedReader br = new BufferedReader(InventoryData.getCSVAsReader())) {
             String line;
             br.readLine(); // Skip header
@@ -582,7 +582,7 @@ public class DSATerminalAssessment {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error reading CSV file: " + e.getMessage());
+            System.out.println("Error reading CSV data: " + e.getMessage());
         }
     }
 
