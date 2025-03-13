@@ -567,7 +567,7 @@ public class DSATerminalAssessment {
             }
 
             if (!found) {
-                System.out.println("Engine number does not exist in this brand.");
+                System.out.println("Engine number does not exist.");
             }
 
             System.out.print("Do you want to search another engine number? (yes/no): ");
