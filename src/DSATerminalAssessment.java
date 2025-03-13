@@ -386,6 +386,12 @@ public class DSATerminalAssessment {
                                             // Remove from brand map
                                             if (brandMap.containsKey(stockToDelete.brand)) {
                                                 brandMap.get(stockToDelete.brand).remove(stockToDelete);
+
+                                                // If the brand has no more stocks, remove it from the brand map
+                                                if (brandMap.get(stockToDelete.brand).isEmpty()) {
+                                                    brandMap.remove(stockToDelete.brand);
+                                                    System.out.println("Brand '" + stockToDelete.brand + "' has been removed from the inventory as it has no more stocks.");
+                                                }
                                             }
 
                                             System.out.println("Stock deleted successfully.");
@@ -417,6 +423,12 @@ public class DSATerminalAssessment {
                                 // Remove from brand map
                                 if (brandMap.containsKey(lastAdded.brand)) {
                                     brandMap.get(lastAdded.brand).remove(lastAdded);
+
+                                    // If the brand has no more stocks, remove it from the brand map
+                                    if (brandMap.get(lastAdded.brand).isEmpty()) {
+                                        brandMap.remove(lastAdded.brand);
+                                        System.out.println("Brand '" + lastAdded.brand + "' has been removed from the inventory as it has no more stocks.");
+                                    }
                                 }
 
                                 System.out.println("Last added stock has been undone:");
@@ -459,7 +471,6 @@ public class DSATerminalAssessment {
             }
         }
     }
-
 
     public static void handleBrandSearchAndCount(Scanner scanner, HashMap<String, List<Stock>> brandMap, InventoryBST inventoryBST) {
         boolean continueSearching = true;
@@ -523,12 +534,12 @@ public class DSATerminalAssessment {
             System.out.println("On-hand: " + onHandCount);
             System.out.println("Sold: " + soldCount);
 
-            // Search by Engine Number using AVL Tree (efficient logarithmic search)
+            // Search by Engine Number within the selected brand
             System.out.print("\nDo you want to search for a specific engine number? (yes/no): ");
             String searchChoice = scanner.nextLine().trim().toLowerCase();
 
             if (searchChoice.equals("yes")) {
-                searchByEngineNumber(scanner, inventoryBST);
+                searchByEngineNumber(scanner, filtered); // Pass the filtered list
             }
 
             // Ask if the user wants to search another brand
@@ -538,21 +549,25 @@ public class DSATerminalAssessment {
         }
     }
 
-    // Helper function for engine number search
-    public static void searchByEngineNumber(Scanner scanner, InventoryBST inventoryBST) {
+    public static void searchByEngineNumber(Scanner scanner, List<Stock> filtered) {
         boolean continueSearch = true;
 
         while (continueSearch) {
             System.out.print("Enter Engine Number to Search: ");
             String searchEngine = scanner.nextLine();
 
-            // Use AVL Tree search (efficient logarithmic search)
-            BSTNode result = inventoryBST.search(searchEngine);
+            // Search within the filtered list (current brand)
+            boolean found = false;
+            for (Stock stock : filtered) {
+                if (stock.engineNumber.equals(searchEngine)) {
+                    System.out.println("Stock found: " + stock);
+                    found = true;
+                    break;
+                }
+            }
 
-            if (result != null) {
-                System.out.println("Stock found: " + result.data);
-            } else {
-                System.out.println("Engine number does not exist.");
+            if (!found) {
+                System.out.println("Engine number does not exist in this brand.");
             }
 
             System.out.print("Do you want to search another engine number? (yes/no): ");
@@ -586,7 +601,6 @@ public class DSATerminalAssessment {
         }
     }
 
-
     public static void sortByDate(List<Stock> stocks) {
         Collections.sort(stocks, new Comparator<Stock>() {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -603,48 +617,6 @@ public class DSATerminalAssessment {
                 }
             }
         });
-    }
-
-    // Merge Sort implementation
-    public static void mergeSort(List<Stock> stocks) {
-        if (stocks.size() <= 1) return;
-        mergeSortRec(stocks, 0, stocks.size() - 1);
-    }
-
-    // Recursive merge sort implementation
-    private static void mergeSortRec(List<Stock> stocks, int left, int right) {
-        if (left < right) {
-            int mid = (left + right) / 2;
-            mergeSortRec(stocks, left, mid);
-            mergeSortRec(stocks, mid + 1, right);
-            merge(stocks, left, mid, right);
-        }
-    }
-
-    // Merge helper for Merge Sort
-    public static void merge(List<Stock> stocks, int left, int mid, int right) {
-        List<Stock> temp = new ArrayList<>();
-        int i = left, j = mid + 1;
-
-        while (i <= mid && j <= right) {
-            if (stocks.get(i).engineNumber.compareTo(stocks.get(j).engineNumber) <= 0) {
-                temp.add(stocks.get(i++));
-            } else {
-                temp.add(stocks.get(j++));
-            }
-        }
-
-        while (i <= mid) {
-            temp.add(stocks.get(i++));
-        }
-
-        while (j <= right) {
-            temp.add(stocks.get(j++));
-        }
-
-        for (i = left; i <= right; i++) {
-            stocks.set(i, temp.get(i - left));
-        }
     }
 
     // Display inventory with numbering
