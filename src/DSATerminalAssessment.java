@@ -300,7 +300,7 @@ public class DSATerminalAssessment {
             System.out.println("5. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -362,7 +362,7 @@ public class DSATerminalAssessment {
                         System.out.println("2. Undo Last Added Stock");
                         System.out.print("Choose an option: ");
                         int manageChoice = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
+                        scanner.nextLine();
 
                         if (manageChoice == 1) {
                             // Delete stock by engine number with validation
@@ -441,6 +441,8 @@ public class DSATerminalAssessment {
                     if (allStocks.isEmpty()) {
                         System.out.println("Inventory is empty.");
                     } else {
+                        // Sort by date before displaying
+                        sortByDate(allStocks);
                         displayInventory(allStocks);
                         displaySummary(allStocks);
                     }
@@ -458,7 +460,7 @@ public class DSATerminalAssessment {
         }
     }
 
-    // New function to handle brand search and count functionality
+
     public static void handleBrandSearchAndCount(Scanner scanner, HashMap<String, List<Stock>> brandMap, InventoryBST inventoryBST) {
         boolean continueSearching = true;
 
@@ -502,6 +504,9 @@ public class DSATerminalAssessment {
 
             // Get filtered stocks using HashMap (O(1) access)
             List<Stock> filtered = brandMap.getOrDefault(filterBrand, new ArrayList<>());
+
+            // Sort the filtered list by date before displaying
+            sortByDate(filtered);
 
             System.out.println("\nStocks for brand: " + filterBrand);
             displayInventory(filtered);
@@ -579,6 +584,25 @@ public class DSATerminalAssessment {
         } catch (IOException e) {
             System.out.println("Error reading CSV data: " + e.getMessage());
         }
+    }
+
+
+    public static void sortByDate(List<Stock> stocks) {
+        Collections.sort(stocks, new Comparator<Stock>() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+            @Override
+            public int compare(Stock s1, Stock s2) {
+                try {
+                    Date date1 = dateFormat.parse(s1.dateEntered);
+                    Date date2 = dateFormat.parse(s2.dateEntered);
+                    return date1.compareTo(date2);
+                } catch (ParseException e) {
+                    // In case of parsing error, fall back to string comparison
+                    return s1.dateEntered.compareTo(s2.dateEntered);
+                }
+            }
+        });
     }
 
     // Merge Sort implementation
