@@ -454,7 +454,7 @@ public class DSATerminalAssessment {
                         System.out.println("Inventory is empty.");
                     } else {
                         // Sort by date before displaying
-                        sortByDate(allStocks);
+                        mergeSortByDate(allStocks);
                         displayInventory(allStocks);
                         displaySummary(allStocks);
                     }
@@ -517,7 +517,7 @@ public class DSATerminalAssessment {
             List<Stock> filtered = brandMap.getOrDefault(filterBrand, new ArrayList<>());
 
             // Sort the filtered list by date before displaying
-            sortByDate(filtered);
+            mergeSortByDate(filtered);
 
             System.out.println("\nStocks for brand: " + filterBrand);
             displayInventory(filtered);
@@ -601,22 +601,60 @@ public class DSATerminalAssessment {
         }
     }
 
-    public static void sortByDate(List<Stock> stocks) {
-        Collections.sort(stocks, new Comparator<Stock>() {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    // Implementation of Merge Sort for sorting stocks by date
+    public static void mergeSortByDate(List<Stock> stocks) {
+        // Create a temporary array for merging
+        Stock[] tempArray = new Stock[stocks.size()];
+        mergeSort(stocks, tempArray, 0, stocks.size() - 1);
+    }
 
-            @Override
-            public int compare(Stock s1, Stock s2) {
-                try {
-                    Date date1 = dateFormat.parse(s1.dateEntered);
-                    Date date2 = dateFormat.parse(s2.dateEntered);
-                    return date1.compareTo(date2);
-                } catch (ParseException e) {
-                    // In case of parsing error, fall back to string comparison
-                    return s1.dateEntered.compareTo(s2.dateEntered);
+    private static void mergeSort(List<Stock> stocks, Stock[] tempArray, int left, int right) {
+        if (left < right) {
+            int center = (left + right) / 2;
+            mergeSort(stocks, tempArray, left, center);
+            mergeSort(stocks, tempArray, center + 1, right);
+            merge(stocks, tempArray, left, center + 1, right);
+        }
+    }
+
+    private static void merge(List<Stock> stocks, Stock[] tempArray, int leftPos, int rightPos, int rightEnd) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        int leftEnd = rightPos - 1;
+        int tempPos = leftPos;
+        int numElements = rightEnd - leftPos + 1;
+
+        while (leftPos <= leftEnd && rightPos <= rightEnd) {
+            try {
+                Date leftDate = dateFormat.parse(stocks.get(leftPos).dateEntered);
+                Date rightDate = dateFormat.parse(stocks.get(rightPos).dateEntered);
+
+                if (leftDate.compareTo(rightDate) <= 0) {
+                    tempArray[tempPos++] = stocks.get(leftPos++);
+                } else {
+                    tempArray[tempPos++] = stocks.get(rightPos++);
+                }
+            } catch (ParseException e) {
+                // Fall back to string comparison in case of parsing error
+                if (stocks.get(leftPos).dateEntered.compareTo(stocks.get(rightPos).dateEntered) <= 0) {
+                    tempArray[tempPos++] = stocks.get(leftPos++);
+                } else {
+                    tempArray[tempPos++] = stocks.get(rightPos++);
                 }
             }
-        });
+        }
+
+        while (leftPos <= leftEnd) {
+            tempArray[tempPos++] = stocks.get(leftPos++);
+        }
+
+        while (rightPos <= rightEnd) {
+            tempArray[tempPos++] = stocks.get(rightPos++);
+        }
+
+        // Copy sorted elements back to the original list
+        for (int i = 0; i < numElements; i++, rightEnd--) {
+            stocks.set(rightEnd, tempArray[rightEnd]);
+        }
     }
 
     // Display inventory with numbering
